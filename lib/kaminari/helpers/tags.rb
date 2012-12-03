@@ -17,6 +17,7 @@ module Kaminari
         @template, @options = template, options.dup
         @param_name = @options.delete(:param_name)
         @route = @options.delete(:route)
+        @routing_scope = @options.delete(:routing_scope)
         @theme = @options[:theme] ? "#{@options.delete(:theme)}/" : ''
         @params = @options[:params] ? template.params.merge(@options.delete :params) : template.params
       end
@@ -26,7 +27,19 @@ module Kaminari
       end
 
       def page_url_for(page)
-        @template.send(@route, @params.merge(@param_name => (page <= 1 ? nil : page)))
+        routing_scope.send(@route, page_url_params)
+      end
+
+      def routing_scope
+        @routing_scope ? @template.send(@routing_scope) : @template
+      end
+
+      def page_url_params
+        if page >= 1
+          @params.merge(@param_name => page)
+        else
+          @params
+        end
       end
     end
 
